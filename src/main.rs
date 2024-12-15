@@ -69,6 +69,8 @@ fn update_website(a: Token, payload: &str) -> Result<String, String> {
     let work_dir = "/app/diehockn.com";
     let script_path = "/app/update_script.sh";
 
+    println!("Updating Website");
+
     match Command::new("bash")
         .arg(script_path)
         .arg(work_dir)
@@ -94,6 +96,8 @@ fn update_api(a: Token, payload: &str) -> Result<String, String> {
     //let work_dir = "/home/elena/Documents/Projects/diehockn.com/";
     let work_dir = "/app/diehockn-api";
     let script_path = "/app/update_script.sh";
+
+    println!("Updating API");
 
     match Command::new("bash")
         .arg(script_path)

@@ -26,6 +26,8 @@ WORKDIR /app
 COPY --from=build /build/main ./
 RUN chmod 777 ./main
 RUN apk add --no-cache bash
+RUN git config --global --add safe.directory /app/diehockn-api
+RUN git config --global --add safe.directory /app/diehockn.com
 ## copy runtime assets which may or may not exist
 COPY --from=build /build/Rocket.tom[l] ./static
 COPY --from=build /build/stati[c] ./static
