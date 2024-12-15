@@ -61,7 +61,7 @@ const fn index() -> &'static str {
 }
 #[get("/")]
 const fn beacon() -> &'static str {
-    "Welcome to the Beacon Zone 😎"
+    "Welcome to the BBBeacon Zone 😎"
 }
 
 #[post("/website", data = "<payload>")]
