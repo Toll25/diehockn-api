@@ -18,7 +18,7 @@ services:
     volumes:
       - /opt/configs/diehockn.com/repo:/app/diehockn.com
       - /opt/configs/diehockn-api/repo:/app/diehockn-api
-      - /opt/scripts/update_script.sh:/app/update_script.sh
+      - /opt/scripts/update_service.sh:/app/update_script.sh
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
 networks:
