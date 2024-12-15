@@ -1,0 +1,23 @@
+services:
+  api:
+    image: diehockn-api
+    environment:
+      - GITHUB_SECRET_KEY=${GITHUB_SECRET_KEY}
+    ports:
+      - 5013:8080
+    networks:
+      - frontend
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.api.rule=Host(`api.diehockn.com`)
+      - traefik.http.routers.api.entrypoints=websecure
+      - traefik.http.services.api.loadbalancer.server.port=8080
+      - traefik.http.routers.api.tls=true
+      - traefik.http.routers.api.tls.certresolver=cloudflare
+    volumes:
+      - /opt/configs/diehockn.com/repo:/app/diehockn
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+networks:
+  frontend:
+    external: true
