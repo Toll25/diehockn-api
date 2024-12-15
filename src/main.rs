@@ -1,6 +1,6 @@
 use std::env;
 use std::num::ParseIntError;
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 use hmac::{digest::MacError, Hmac, Mac};
 use rocket::fairing::{Fairing, Info, Kind};
@@ -60,82 +60,70 @@ const fn index() -> &'static str {
     "Welcome to the Bone Zone 😎"
 }
 
-#[post("/update_website", data = "<payload>")]
-fn update(a: Token, payload: &str) -> String {
-    if verify(payload, a.0.as_str()).is_err() {
-        "Bad Request".to_string();
+#[post("/website", data = "<payload>")]
+fn update_website(a: Token, payload: &str) -> Result<String, String> {
+    if verify(payload, a.0.as_str(), "GITHUB_WEBSITE_SECRET_KEY").is_err() {
+        return Err("Bad Request".to_string());
     }
     //let work_dir = "/home/elena/Documents/Projects/diehockn.com/";
-    let work_dir = "/app/diehockn";
-    let output = Command::new("git")
-        .args(["pull", "origin", "main"]) // Modify branch if needed
-        .current_dir(work_dir)
-        .output()
-        .unwrap();
+    let work_dir = "/app/diehockn.com";
+    let script_path = "/app/update_script.sh";
 
-    if !output.status.success() {
-        return "Pull failed".to_string();
+    match Command::new("bash")
+        .arg(script_path)
+        .arg(work_dir)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()
+    {
+        Ok(_) => {
+            // Return immediately to satisfy the webhook response time requirement
+            Ok("Deployment started successfully.".to_string())
+        }
+        Err(e) => {
+            // Return an error if the script couldn't be started
+            Err(format!("Failed to start deployment: {}", e))
+        }
     }
-    println!(
-        "Git pull successful:\n{}",
-        String::from_utf8_lossy(&output.stdout)
-    );
-
-    let output = Command::new("docker")
-        .args(["build", "-t", "diehockn", "."])
-        .current_dir(work_dir)
-        .output()
-        .unwrap();
-
-    if !output.status.success() {
-        return "Build failed".to_string();
+}
+#[post("/api", data = "<payload>")]
+fn update_api(a: Token, payload: &str) -> Result<String, String> {
+    if verify(payload, a.0.as_str(), "GITHUB_API_SECRET_KEY").is_err() {
+        return Err("Bad Request".to_string());
     }
-    println!(
-        "Docker build successful:\n{}",
-        String::from_utf8_lossy(&output.stdout)
-    );
+    //let work_dir = "/home/elena/Documents/Projects/diehockn.com/";
+    let work_dir = "/app/diehockn-api";
+    let script_path = "/app/update_script.sh";
 
-    let output = Command::new("docker-compose")
-        .args(["down"])
-        .current_dir(work_dir)
-        .output()
-        .unwrap();
-
-    if !output.status.success() {
-        return "Compose down failed".to_string();
+    match Command::new("bash")
+        .arg(script_path)
+        .arg(work_dir)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()
+    {
+        Ok(_) => {
+            // Return immediately to satisfy the webhook response time requirement
+            Ok("Deployment started successfully.".to_string())
+        }
+        Err(e) => {
+            // Return an error if the script couldn't be started
+            Err(format!("Failed to start deployment: {}", e))
+        }
     }
-    println!(
-        "Docker Compose down successful:\n{}",
-        String::from_utf8_lossy(&output.stdout)
-    );
-
-    let output = Command::new("docker-compose")
-        .args(["up", "-d"])
-        .current_dir(work_dir)
-        .output()
-        .unwrap();
-
-    if !output.status.success() {
-        return "Compose up failed".to_string();
-    }
-    println!(
-        "Docker Compose stack redeployed:\n{}",
-        String::from_utf8_lossy(&output.stdout)
-    );
-    "Successfull deployment".to_string()
 }
 
 #[launch]
 fn rocket() -> _ {
     rocket::build()
         .attach(CORS)
-        .mount("/", routes![index, update])
+        .mount("/", routes![index])
+        .mount("/update", routes![update_api, update_website])
 }
 
-fn verify(payload: &str, sig: &str) -> Result<(), MacError> {
+fn verify(payload: &str, sig: &str, secret_env: &str) -> Result<(), MacError> {
     type HmacSha256 = Hmac<Sha256>;
-    let secret =
-        env::var("GITHUB_SECRET_KEY").expect("GITHUB_SECRET_KEY must be set in the environment");
+    let secret = env::var(secret_env).expect("GITHUB_SECRET_KEY must be set in the environment");
     let secret = secret.trim();
     let sig = sig.trim_start_matches("sha256=");
 
