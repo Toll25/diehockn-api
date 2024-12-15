@@ -2,6 +2,8 @@ services:
   api:
     image: diehockn-api
     environment:
+      - PUID=1000
+      - PGID=1000
       - GITHUB_WEBSITE_SECRET_KEY=${GITHUB_WEBSITE_SECRET_KEY}
       - GITHUB_API_SECRET_KEY=${GITHUB_API_SECRET_KEY}
     ports:
