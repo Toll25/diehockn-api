@@ -92,34 +92,6 @@ fn update_website(a: Token, payload: &str) -> Result<String, String> {
         }
     }
 }
-#[post("/api", data = "<payload>")]
-fn update_api(a: Token, payload: &str) -> Result<String, String> {
-    if verify(payload, a.0.as_str(), "GITHUB_API_SECRET_KEY").is_err() {
-        return Err("Bad Request".to_string());
-    }
-    //let work_dir = "/home/elena/Documents/Projects/diehockn.com/";
-    let work_dir = "/app/diehockn-api";
-    let script_path = "/app/update_script.sh";
-
-    println!("Updating API");
-
-    match Command::new("bash")
-        .arg(script_path)
-        .arg(work_dir)
-        .stdout(Stdio::inherit())
-        .stderr(Stdio::inherit())
-        .spawn()
-    {
-        Ok(_) => {
-            // Return immediately to satisfy the webhook response time requirement
-            Ok("Deployment started successfully.".to_string())
-        }
-        Err(e) => {
-            // Return an error if the script couldn't be started
-            Err(format!("Failed to start deployment: {}", e))
-        }
-    }
-}
 
 #[launch]
 fn rocket() -> _ {
@@ -127,7 +99,7 @@ fn rocket() -> _ {
         .attach(CORS)
         .mount("/", routes![index])
         .mount("/beacon", routes![beacon])
-        .mount("/update", routes![update_api, update_website])
+        .mount("/update", routes![update_website])
 }
 
 fn verify(payload: &str, sig: &str, secret_env: &str) -> Result<(), MacError> {
