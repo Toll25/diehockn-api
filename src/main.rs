@@ -69,13 +69,7 @@ fn update_website(a: Token, payload: &str) -> Result<String, String> {
     let work_dir = "/app/diehockn.com";
     let script_path = "/app/update_script.sh";
 
-    match Command::new("bash")
-        .arg(script_path)
-        .arg(work_dir)
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .spawn()
-    {
+    match Command::new("bash").arg(script_path).arg(work_dir).spawn() {
         Ok(_) => {
             // Return immediately to satisfy the webhook response time requirement
             Ok("Deployment started successfully.".to_string())
