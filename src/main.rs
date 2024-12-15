@@ -59,6 +59,10 @@ impl<'r> FromRequest<'r> for Token {
 const fn index() -> &'static str {
     "Welcome to the Bone Zone 😎"
 }
+#[get("/")]
+const fn beacon() -> &'static str {
+    "Welcome to the Beacon Zone 😎"
+}
 
 #[post("/website", data = "<payload>")]
 fn update_website(a: Token, payload: &str) -> Result<String, String> {
@@ -122,6 +126,7 @@ fn rocket() -> _ {
     rocket::build()
         .attach(CORS)
         .mount("/", routes![index])
+        .mount("/beacon", routes![beacon])
         .mount("/update", routes![update_api, update_website])
 }
 
