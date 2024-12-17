@@ -29,9 +29,9 @@ RUN apk add --no-cache bash
 RUN git config --global --add safe.directory /app/diehockn-api
 RUN git config --global --add safe.directory /app/diehockn.com
 ## copy runtime assets which may or may not exist
-COPY --from=build /build/Rocket.tom[l] ./static
-COPY --from=build /build/stati[c] ./static
-COPY --from=build /build/template[s] ./templates
+COPY --from=build /build/Rocket.tom[l] ./static/
+COPY --from=build /build/stati[c] ./static/
+COPY --from=build /build/template[s] ./templates/
 
 ## ensure the container listens globally on port 8080
 ENV ROCKET_ADDRESS=0.0.0.0
