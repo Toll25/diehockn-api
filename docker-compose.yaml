@@ -19,7 +19,6 @@ services:
       - traefik.http.routers.api.tls.certresolver=cloudflare
     volumes:
       - /opt/configs/diehockn.com:/app/diehockn.com
-      - /opt/configs/diehockn-api:/app/diehockn-api
       - /opt/scripts/update_service.sh:/app/update_script.sh
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
