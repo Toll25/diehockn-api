@@ -2,6 +2,7 @@ use std::env;
 use std::num::ParseIntError;
 use std::process::{Command, Stdio};
 
+use beacon_endpoint::get_routes;
 use hmac::{digest::MacError, Hmac, Mac};
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Header;
@@ -9,6 +10,8 @@ use rocket::request::{self, FromRequest, Request};
 use rocket::Response;
 use rocket::{http::Status, outcome::Outcome};
 use sha2::Sha256;
+
+mod beacon_endpoint;
 
 #[macro_use]
 extern crate rocket;
@@ -59,11 +62,8 @@ impl<'r> FromRequest<'r> for Token {
 const fn index() -> &'static str {
     "Welcome to the Bone Zone 😎"
 }
-#[get("/")]
-const fn beacon() -> &'static str {
-    "Welcome to the BBBeacon Zone 😎"
-}
 
+#[allow(clippy::needless_pass_by_value)]
 #[post("/website", data = "<payload>")]
 fn update_website(a: Token, payload: &str) -> Result<String, String> {
     if verify(payload, a.0.as_str(), "GITHUB_WEBSITE_SECRET_KEY").is_err() {
@@ -88,7 +88,7 @@ fn update_website(a: Token, payload: &str) -> Result<String, String> {
         }
         Err(e) => {
             // Return an error if the script couldn't be started
-            Err(format!("Failed to start deployment: {}", e))
+            Err(format!("Failed to start deployment: {e}"))
         }
     }
 }
@@ -98,7 +98,7 @@ fn rocket() -> _ {
     rocket::build()
         .attach(CORS)
         .mount("/", routes![index])
-        .mount("/beacon", routes![beacon])
+        .mount("/beacon", get_routes())
         .mount("/update", routes![update_website])
 }
 

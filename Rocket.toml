@@ -1,6 +1,3 @@
-[default]
-log_level = "debug"
-
 [default.limits]
 string = "2 MiB"
 json = "10 MiB"
