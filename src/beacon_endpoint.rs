@@ -13,7 +13,14 @@ use serde::ser::SerializeMap;
 use serde::{Deserialize, Serialize, Serializer};
 
 pub fn get_routes() -> Vec<Route> {
-    routes![beacon, approx, approx_cust, panes, colors]
+    routes![
+        beacon,
+        approx,
+        approx_cust,
+        panes,
+        colors,
+        options_approx_cust
+    ]
 }
 
 struct DepthCutoffHeaders {
@@ -76,6 +83,10 @@ fn approx(color: ColorQuery) -> Json<Panes> {
 fn approx_cust(color: ColorQuery, headers: DepthCutoffHeaders) -> Json<Panes> {
     let rgb = [color.r, color.g, color.b];
     Json(find_combination_custom(rgb, headers.depth, headers.cutoff).unwrap())
+}
+#[options("/approximation/custom")]
+fn options_approx_cust() -> Status {
+    Status::Ok
 }
 
 #[get("/panes?<panes..>")]
