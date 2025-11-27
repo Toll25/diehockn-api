@@ -13,7 +13,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.api.rule=Host(`api.diehockn.com`)
-      - traefik.http.routers.api.entrypoints=websecure,websecure
+      - traefik.http.routers.api.entrypoints=websecure,webpublic
       - traefik.http.services.api.loadbalancer.server.port=8080
       - traefik.http.routers.api.tls=true
       - traefik.http.routers.api.tls.certresolver=cloudflare
