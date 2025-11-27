@@ -1,6 +1,6 @@
 services:
   api:
-    image: diehockn-api
+    image: diehockn-api:latest
     environment:
       - PUID=1000
       - PGID=1000
